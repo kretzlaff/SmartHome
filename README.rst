@@ -1,5 +1,5 @@
 ======
-lights
+smart_home
 ======
 
 
