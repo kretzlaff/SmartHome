@@ -9,6 +9,8 @@ pylint = "*"
 
 [packages]
 paho-mqtt = "*"
+uldaq = "*"
+rx = "*"
 
 [requires]
 python_version = "3.8"
