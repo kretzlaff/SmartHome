@@ -59,6 +59,8 @@ class SwitchesClient(object):
             # Create the DAQ device object associated with the specified descriptor index.
             self.__device = next(
                 f for f in self.__devices if f.unique_id == self.__device_id)
+
+            print('Trying to connect to Device Id: ', self.__device)
             self.__daq_device = DaqDevice(self.__device)
 
             # Get the DioDevice object and verify that it is valid.
