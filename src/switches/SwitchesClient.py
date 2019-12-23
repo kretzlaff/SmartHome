@@ -4,6 +4,7 @@
 from __future__ import print_function
 from time import sleep
 from rx.subject import Subject
+import rx
 
 from uldaq import get_daq_device_inventory, DaqDevice, InterfaceType, DigitalDirection, DigitalPortIoType
 

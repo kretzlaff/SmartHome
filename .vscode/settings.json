@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "C:\\Users\\kenny\\.virtualenvs\\lights-PdWwmnOe\\Scripts\\python.exe",
+    "python.pythonPath": "/home/pi/.local/share/virtualenvs/SmartHome-lzUeUcsY/bin/python",
     "restructuredtext.confPath": "${workspaceFolder}\\docs"
 }
