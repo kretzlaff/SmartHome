@@ -79,7 +79,7 @@ class SwitchMapper(object):
             while True:
                 self.__d1.read_device()
                 self.__d2.read_device()
-                await asyncio.sleep(0.05)
+                await asyncio.sleep(0.0001)
         finally:
             self.__d1._disconnect()
             self.__d2._disconnect()

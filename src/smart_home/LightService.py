@@ -14,6 +14,7 @@ class LightService(object):
         observable.pipe(ops.debounce(1)).subscribe(
             lambda _: self.__toggleRoom(roomGroup))
 
+
     def __toggleRoom(self, roomGroup: RoomGroup):
         if roomGroup in self.__roomStatus:
             if self.__roomStatus[roomGroup]:
