@@ -1,6 +1,5 @@
 from switches import SwitchMapper
 from smart_home import LightService, RoomGroup
-import rx
 import asyncio
 
 mapper = SwitchMapper.SwitchMapper()

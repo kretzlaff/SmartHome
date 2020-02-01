@@ -7,12 +7,14 @@ verify_ssl = true
 autopep8 = "*"
 pylint = "*"
 pylama = "*"
+rope = "*"
 
 [packages]
 paho-mqtt = "*"
 uldaq = "*"
 rx = "*"
 "RPi.GPIO" = "*"
+soco = "*"
 
 [requires]
 python_version = "3.8"

@@ -2,10 +2,6 @@
 # -*- coding: UTF-8 -*-
 
 from switches import SwitchesClient as c
-import asyncio
-import rx
-from rx import Observable
-from time import sleep
 
 
 class SwitchMapper(object):
@@ -48,7 +44,7 @@ class SwitchMapper(object):
         self.entrance_1 = self.__d2._A1.pipe()
         self.entrance_2 = self.__d2._A2.pipe()
         # self.__d2._A3.subscribe(lambda value: print("D2A3 pressed"))
-        # self.__d2._A4.subscribe(lambda value: print("D2A4 pressed"))
+        self.doorBell = self.__d2._A4.pipe()
         # self.__d2._A5.subscribe(lambda value: print("D2A5 pressed"))
         # self.__d2._A6.subscribe(lambda value: print("D2A6 pressed"))
         # self.__d2._A7.subscribe(lambda value: print("D2A7 pressed"))
@@ -79,7 +75,6 @@ class SwitchMapper(object):
             while True:
                 self.__d1.read_device()
                 self.__d2.read_device()
-                await asyncio.sleep(0.0001)
         finally:
             self.__d1._disconnect()
             self.__d2._disconnect()
