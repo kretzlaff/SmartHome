@@ -4,7 +4,7 @@
 from __future__ import print_function
 from rx.subject import Subject
 
-from uldaq import get_daq_device_inventory, DaqDevice, InterfaceType, DigitalPortIoType
+from uldaq import get_daq_device_inventory, DaqDevice, InterfaceType, DigitalPortIoType, DigitalDirection
 
 
 class SwitchesClient(object):
@@ -126,25 +126,19 @@ class SwitchesClient(object):
         try:
             # Read each of the bits from the first port.
             for bit_number in range(self.__port_info_a.number_of_bits):
-                data = bool(self.__dio_device.d_bit_in(
+                active = bool(self.__dio_device.d_bit_in(
                     self.__port_a, bit_number))
-                if data:
-                    continue
-                self.__update_observer(self.__device_id, 0, bit_number)
+                self.__update_observer(self.__device_id, 0, bit_number, active)
 
             for bit_number in range(self.__port_info_b.number_of_bits):
-                data = bool(self.__dio_device.d_bit_in(
+                active = bool(self.__dio_device.d_bit_in(
                     self.__port_b, bit_number))
-                if data:
-                    continue
-                self.__update_observer(self.__device_id, 1, bit_number)
+                self.__update_observer(self.__device_id, 1, bit_number, active)
 
             for bit_number in range(self.__port_info_c.number_of_bits):
-                data = bool(self.__dio_device.d_bit_in(
+                active = bool(self.__dio_device.d_bit_in(
                     self.__port_c, bit_number))
-                if data:
-                    continue
-                self.__update_observer(self.__device_id, 2, bit_number)
+                self.__update_observer(self.__device_id, 2, bit_number, active)
 
         except Exception as e:
             print('\n', e)
@@ -156,79 +150,79 @@ class SwitchesClient(object):
                 self.__daq_device.disconnect()
             self.__daq_device.release()
 
-    def __update_observer(self, device, port, bit):
+    def __update_observer(self, device, port, bit, pressed):
         if port == 0:
             if bit == 0:
-                print('+++ ' + self.__device_id + ' A0')
-                self._A0.on_next(True)
+                # print('+++ ' + self.__device_id + ' A0')
+                self._A0.on_next(pressed)
             if bit == 1:
-                print('+++ ' + self.__device_id + ' A1')
-                self._A1.on_next(True)
+                # print('+++ ' + self.__device_id + ' A1')
+                self._A1.on_next(pressed)
             if bit == 2:
-                print('+++ ' + self.__device_id + ' A2')
-                self._A2.on_next(True)
+                # print('+++ ' + self.__device_id + ' A2')
+                self._A2.on_next(pressed)
             if bit == 3:
-                print('+++ ' + self.__device_id + ' A3')
-                self._A3.on_next(True)
+                # print('+++ ' + self.__device_id + ' A3')
+                self._A3.on_next(pressed)
             if bit == 4:
-                print('+++ ' + self.__device_id + ' A4')
-                self._A4.on_next(True)
+                # print('+++ ' + self.__device_id + ' A4')
+                self._A4.on_next(pressed)
             if bit == 5:
-                print('+++ ' + self.__device_id + ' A5')
-                self._A5.on_next(True)
+                # print('+++ ' + self.__device_id + ' A5')
+                self._A5.on_next(pressed)
             if bit == 6:
-                print('+++ ' + self.__device_id + ' A6')
-                self._A6.on_next(True)
+                # print('+++ ' + self.__device_id + ' A6')
+                self._A6.on_next(pressed)
             if bit == 7:
-                print('+++ ' + self.__device_id + ' A7')
-                self._A7.on_next(True)
+                # print('+++ ' + self.__device_id + ' A7')
+                self._A7.on_next(pressed)
         if port == 1:
             if bit == 0:
-                print('+++ ' + self.__device_id + ' B0')
-                self._B0.on_next(True)
+                # print('+++ ' + self.__device_id + ' B0')
+                self._B0.on_next(pressed)
             if bit == 1:
-                print('+++ ' + self.__device_id + ' B1')
-                self._B1.on_next(True)
+                # print('+++ ' + self.__device_id + ' B1')
+                self._B1.on_next(pressed)
             if bit == 2:
-                print('+++ ' + self.__device_id + ' B2')
-                self._B2.on_next(True)
+                # print('+++ ' + self.__device_id + ' B2')
+                self._B2.on_next(pressed)
             if bit == 3:
-                print('+++ ' + self.__device_id + ' B3')
-                self._B3.on_next(True)
+                # print('+++ ' + self.__device_id + ' B3')
+                self._B3.on_next(pressed)
             if bit == 4:
-                print('+++ ' + self.__device_id + ' B4')
-                self._B4.on_next(True)
+                # print('+++ ' + self.__device_id + ' B4')
+                self._B4.on_next(pressed)
             if bit == 5:
-                print('+++ ' + self.__device_id + ' B5')
-                self._B5.on_next(True)
+                # print('+++ ' + self.__device_id + ' B5')
+                self._B5.on_next(pressed)
             if bit == 6:
-                print('+++ ' + self.__device_id + ' B6')
-                self._B6.on_next(True)
+                # print('+++ ' + self.__device_id + ' B6')
+                self._B6.on_next(pressed)
             if bit == 7:
-                print('+++ ' + self.__device_id + ' B7')
-                self._B7.on_next(True)
+                # print('+++ ' + self.__device_id + ' B7')
+                self._B7.on_next(pressed)
         if port == 2:
             if bit == 0:
-                print('+++ ' + self.__device_id + ' C0')
-                self._C0.on_next(True)
+                # print('+++ ' + self.__device_id + ' C0')
+                self._C0.on_next(pressed)
             if bit == 1:
-                print('+++ ' + self.__device_id + ' C1')
-                self._C1.on_next(True)
+                # print('+++ ' + self.__device_id + ' C1')
+                self._C1.on_next(pressed)
             if bit == 2:
-                print('+++ ' + self.__device_id + ' C2')
-                self._C2.on_next(True)
+                # print('+++ ' + self.__device_id + ' C2')
+                self._C2.on_next(pressed)
             if bit == 3:
-                print('+++ ' + self.__device_id + ' C3')
-                self._C3.on_next(True)
+                # print('+++ ' + self.__device_id + ' C3')
+                self._C3.on_next(pressed)
             if bit == 4:
-                print('+++ ' + self.__device_id + ' C4')
-                self._C4.on_next(True)
+                # print('+++ ' + self.__device_id + ' C4')
+                self._C4.on_next(pressed)
             if bit == 5:
-                print('+++ ' + self.__device_id + ' C5')
-                self._C5.on_next(True)
+                # print('+++ ' + self.__device_id + ' C5')
+                self._C5.on_next(pressed)
             if bit == 6:
-                print('+++ ' + self.__device_id + ' C6')
-                self._C6.on_next(True)
+                # print('+++ ' + self.__device_id + ' C6')
+                self._C6.on_next(pressed)
             if bit == 7:
-                print('+++ ' + self.__device_id + ' C7')
-                self._C7.on_next(True)
+                # print('+++ ' + self.__device_id + ' C7')
+                self._C7.on_next(pressed)

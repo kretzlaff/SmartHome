@@ -21,9 +21,9 @@ class GpioClient:
         for i in OutputPins:
             GPIO.setup(i, GPIO.OUT)
             GPIO.output(i, GPIO.HIGH)
-        sleep(10)
+
         self.allBlindsUp()
-        sleep(10)
+        sleep(4)
         # self.blind3Down()
         # sleep(5)
         # self.blind3Up()
