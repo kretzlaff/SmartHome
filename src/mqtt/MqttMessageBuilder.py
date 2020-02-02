@@ -5,14 +5,16 @@ import json
 def getTurnOffPayload():
     return json.dumps({
         "state": "OFF",
-        "transition": 3
+        "transition": 1
     })
 
 
 def getTurnOnPayload():
     return json.dumps({
+        "brightness": 200,
+        "color_temp": 800,
         "state": "ON",
-        "transition": 3
+        "transition": 1
     })
 
 
