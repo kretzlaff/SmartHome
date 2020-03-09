@@ -3,6 +3,8 @@
 
 from switches import SwitchesClient as c
 
+import datetime
+
 
 class SwitchMapper(object):
     __device1_id = "01E19747"
@@ -67,14 +69,20 @@ class SwitchMapper(object):
         # self.__d2._C6.subscribe(lambda value: print("D2C6 pressed"))
         # self.__d2._C7.subscribe(lambda value: print("D2C7 pressed"))
 
-    async def readDevices(self):
+    def readDevices(self):
         try:
             self.__d1.connect("01E19747")
             self.__d2.connect("01E196D1")
 
             while True:
-                self.__d1.read_device()
-                self.__d2.read_device()
+                self.__d2.read_device([4], [], [])  # Doorbell
+                self.__d1.read_device([0, 1, 2, 3, 4, 5, 6],
+                                      [0, 1, 2, 3, 4],
+                                      [0, 1, 2, 3])
+                self.__d2.read_device([4], [], [])  # Doorbell
+                self.__d2.read_device([0, 1, 2, 4],
+                                      [1, 2, 3],
+                                      [0, 1, 2, 3])
         finally:
             self.__d1._disconnect()
             self.__d2._disconnect()

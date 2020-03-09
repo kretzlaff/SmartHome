@@ -1,5 +1,5 @@
 from switches import SwitchMapper
-from smart_home import LightService, RoomGroup, BlindsService
+from smart_home import LightService, RoomGroup, BlindsService, DoorbellService
 from smart_home.BlindAction import BlindAction, Blind
 import asyncio
 
@@ -7,6 +7,10 @@ import asyncio
 mapper = SwitchMapper.SwitchMapper()
 lightService = LightService.LightService()
 blindsService = BlindsService.BlindsService()
+doorbellService = DoorbellService.DoorbellService()
+
+# Doorbell
+doorbellService.addSwitch(mapper.doorBell)
 
 # Map Lights and switches
 lightService.addSwitch(mapper.living_room_1, RoomGroup.RoomGroup.LIVING_ROOM)
@@ -41,7 +45,8 @@ blindsService.addSwitch(mapper.entrance_2, BlindAction.AllUp, Blind.All)
 blindsService.addSwitch(mapper.entrance_3, BlindAction.AllDown, Blind.All)
 
 # Start reading switch states
-loop = asyncio.get_event_loop()
-loop.create_task(mapper.readDevices())
-loop.run_forever()
-loop.close()
+# loop = asyncio.get_event_loop()
+# loop.create_task(mapper.readDevices())
+# loop.run_forever()
+# loop.close()
+mapper.readDevices()

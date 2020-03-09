@@ -92,9 +92,9 @@ class LightService(object):
 
             # Button is hold
             timeSincePressed = (now - buttonPressed).total_seconds()
-            if newest.pressed and timeSincePressed > 1:
+            if newest.pressed and timeSincePressed > 2:
                 self.__dimmRoom(roomGroup)
-                time.sleep(0.3)
+                time.sleep(0.4)
                 dimmed = True
 
             # No pressed Signal for 2 seconds (reset routine)

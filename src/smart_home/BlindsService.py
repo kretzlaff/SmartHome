@@ -17,7 +17,10 @@ class BlindsService(object):
         self.__blockTimer = None
         self.__scheduler = EventLoopScheduler()
 
-    def addSwitch(self, observable: Observable, blindAction: BlindAction, blind: Blind):
+    def addSwitch(self,
+                  observable: Observable,
+                  blindAction: BlindAction,
+                  blind: Blind):
         # Initialize states
         self.__buttonState[blindAction] = False
         self.__blindUp[blind] = False
@@ -26,7 +29,11 @@ class BlindsService(object):
         observable.pipe(ops.observe_on(self.__scheduler)).subscribe(
             lambda active: self.__pressedHandler(blindAction, blind, active))
 
-    def __pressedHandler(self, blindAction: BlindAction, blind: Blind, active: bool):
+    def __pressedHandler(
+            self,
+            blindAction: BlindAction,
+            blind: Blind,
+            active: bool):
         # Button State did not change ... skipping
         if self.__buttonState[blindAction] == active:
             return
@@ -52,8 +59,8 @@ class BlindsService(object):
         if self.__blockTimer is not None:
             self.__blockTimer.cancel()
 
-        # Block the automation after 1 minute
-        self.__blockTimer = Timer(60.0, self.__blockAutomationWhenAllAreUp)
+        # Block the automation after 70 seconds
+        self.__blockTimer = Timer(70.0, self.__blockAutomationWhenAllAreUp)
         self.__blockTimer.start()
 
     def __handleRelayActive(self, blindAction: BlindAction, blind: Blind):
@@ -80,14 +87,22 @@ class BlindsService(object):
         if blindAction == BlindAction.Blind5Down:
             self.__gpioClient.blind5DownStart()
 
-        if blindAction == BlindAction.AllUp or blindAction == BlindAction.AllUp2:
+        if (blindAction == BlindAction.AllUp or
+                blindAction == BlindAction.AllUp2):
             self.__gpioClient.allBlindsUpStart()
-        if blindAction == BlindAction.AllDown or blindAction == BlindAction.AllDown2:
+        if (blindAction == BlindAction.AllDown or
+                blindAction == BlindAction.AllDown2):
             self.__gpioClient.allBlindsDownStart()
 
         # Store the timestamp when the up signal was initiated
         # to detect if the blind is all the way up
-        if blindAction in (BlindAction.Blind1Up, BlindAction.Blind2Up, BlindAction.Blind3Up, BlindAction.Blind4Up, BlindAction.Blind5Up, BlindAction.AllUp, BlindAction.AllUp2):
+        if blindAction in (BlindAction.Blind1Up,
+                           BlindAction.Blind2Up,
+                           BlindAction.Blind3Up,
+                           BlindAction.Blind4Up,
+                           BlindAction.Blind5Up,
+                           BlindAction.AllUp,
+                           BlindAction.AllUp2):
             self.__blindUpTimer[blind] = datetime.datetime.now()
 
     def __handleRelayInactive(self, blindAction: BlindAction, blind: Blind):
@@ -114,20 +129,29 @@ class BlindsService(object):
         if blindAction == BlindAction.Blind5Down:
             self.__gpioClient.blind5DownStop()
 
-        if blindAction == BlindAction.AllUp or blindAction == BlindAction.AllUp2:
+        if (blindAction == BlindAction.AllUp or
+                blindAction == BlindAction.AllUp2):
             self.__gpioClient.allBlindsUpStop()
-        if blindAction == BlindAction.AllDown or blindAction == BlindAction.AllDown2:
+        if (blindAction == BlindAction.AllDown or
+                blindAction == BlindAction.AllDown2):
             self.__gpioClient.allBlindsDownStop()
 
         # If the up signal was sent for more than 2 seconds the blind is up
-        if blindAction in (BlindAction.Blind1Up, BlindAction.Blind2Up, BlindAction.Blind3Up, BlindAction.Blind4Up, BlindAction.Blind5Up, BlindAction.AllUp, BlindAction.AllUp2):
+        if blindAction in (BlindAction.Blind1Up,
+                           BlindAction.Blind2Up,
+                           BlindAction.Blind3Up,
+                           BlindAction.Blind4Up,
+                           BlindAction.Blind5Up,
+                           BlindAction.AllUp,
+                           BlindAction.AllUp2):
             blindUp: bool = (datetime.datetime.now() -
                              self.__blindUpTimer[blind]).total_seconds() > 2
 
             self.__blindUp[blind] = blindUp
 
             # Change all values in case the group all is triggered
-            if blindAction == BlindAction.AllUp or blindAction == BlindAction.AllUp2:
+            if (blindAction == BlindAction.AllUp or
+                    blindAction == BlindAction.AllUp2):
                 for group in Blind:
                     self.__blindUp[group] = blindUp
 
@@ -136,7 +160,8 @@ class BlindsService(object):
             self.__blindUp[blind] = False
 
             # Change all values in case the group all is triggered
-            if blindAction == BlindAction.AllDown or blindAction == BlindAction.AllDown2:
+            if (blindAction == BlindAction.AllDown or
+                    blindAction == BlindAction.AllDown2):
                 for group in Blind:
                     self.__blindUp[group] = False
 

@@ -122,20 +122,20 @@ class SwitchesClient(object):
             print('\n', e)
             self._disconnect()
 
-    def read_device(self):
+    def read_device(self, a, b, c):
         try:
             # Read each of the bits from the first port.
-            for bit_number in range(self.__port_info_a.number_of_bits):
+            for bit_number in a:
                 active = not bool(self.__dio_device.d_bit_in(
                     self.__port_a, bit_number))
                 self.__update_observer(self.__device_id, 0, bit_number, active)
 
-            for bit_number in range(self.__port_info_b.number_of_bits):
+            for bit_number in b:
                 active = not bool(self.__dio_device.d_bit_in(
                     self.__port_b, bit_number))
                 self.__update_observer(self.__device_id, 1, bit_number, active)
 
-            for bit_number in range(self.__port_info_c.number_of_bits):
+            for bit_number in c:
                 active = not bool(self.__dio_device.d_bit_in(
                     self.__port_c, bit_number))
                 self.__update_observer(self.__device_id, 2, bit_number, active)
