@@ -1,11 +1,10 @@
 import threading
 
-from SwitchesClient import SwitchesClient
+from switches.SwitchesClient import SwitchesClient
 
 
 class SwitchThread(threading.Thread):
-    def __init__(self, q):
-        self.q = q
+    def __init__(self):
         self.switchClient = SwitchesClient()
         super(SwitchThread, self).__init__()
 
@@ -13,8 +12,10 @@ class SwitchThread(threading.Thread):
         self.__device_id = device_id
         self.switchClient.connect(device_id)
 
-    def configure(self, readings):
-        self.__readings = readings
+    def configure(self, a, b, c):
+        self.__a = a
+        self.__b = b
+        self.__c = c
 
     def disconnect(self):
         self.switchClient._disconnect(self.device_id)
@@ -23,9 +24,9 @@ class SwitchThread(threading.Thread):
         try:
             while True:
                 self.switchClient.read_device(
-                    self.__readings[0],
-                    self.__readings[1],
-                    self.__readings[2])
+                    self.__a,
+                    self.__b,
+                    self.__c)
 
         finally:
             self.disconnect()

@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
-from SwitchThread import SwitchThread
+from switches.SwitchThread import SwitchThread
 
 
 class SwitchMapper(object):
