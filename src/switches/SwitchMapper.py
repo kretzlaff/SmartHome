@@ -3,8 +3,6 @@
 
 from switches import SwitchesClient as c
 
-import datetime
-
 
 class SwitchMapper(object):
     __device1_id = "01E19747"

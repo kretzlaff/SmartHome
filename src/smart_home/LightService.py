@@ -31,7 +31,9 @@ class LightService(object):
         self.__roomRoutineActive[roomGroup] = False
         self.__lightOn[roomGroup] = False
         observable.subscribe(
-            lambda active: self.__pressedHandler(roomGroup) if active else self.__releasedHandler(roomGroup))
+            lambda active:
+                (self.__pressedHandler(roomGroup)
+                 if active else self.__releasedHandler(roomGroup)))
 
     def addTempSwitch(self, observable: Observable, roomGroup: RoomGroup):
         observable.pipe(ops.debounce(0.5)).subscribe(
@@ -124,7 +126,8 @@ class LightService(object):
         self.__mqttClient.publish(
             self.__getGroupFriendlyName(
                 roomGroup),
-            MqttMessageBuilder.getChangeBrightnessPayload(self.__dimmState[roomGroup].value))
+            MqttMessageBuilder.getChangeBrightnessPayload(
+                self.__dimmState[roomGroup].value))
 
     def __tempCycle(self, roomGroup: RoomGroup):
         if self.__tempState[roomGroup].increase:
@@ -139,7 +142,8 @@ class LightService(object):
         self.__mqttClient.publish(
             self.__getGroupFriendlyName(
                 roomGroup),
-            MqttMessageBuilder.getChangeTempPayload(self.__tempState[roomGroup].value))
+            MqttMessageBuilder.getChangeTempPayload(
+                self.__tempState[roomGroup].value))
 
     def __toggleRoom(self, roomGroup: RoomGroup):
         if self.__lightOn[roomGroup]:

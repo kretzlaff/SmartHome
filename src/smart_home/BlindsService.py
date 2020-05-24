@@ -257,10 +257,10 @@ class BlindsService(object):
         # Ensure all 5 blinds are up
         if all(blind in self.__blindUp for blind in
                (Blind.Blind1,
-                   Blind.Blind2,
-                   Blind.Blind3,
-                   Blind.Blind4,
-                   Blind.Blind5)):
+                Blind.Blind2,
+                Blind.Blind3,
+                Blind.Blind4,
+                Blind.Blind5)):
             return
 
         # Block the automation

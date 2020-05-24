@@ -4,7 +4,10 @@
 from __future__ import print_function
 from rx.subject import Subject
 
-from uldaq import get_daq_device_inventory, DaqDevice, InterfaceType, DigitalPortIoType, DigitalDirection
+from uldaq import (get_daq_device_inventory,
+                   DaqDevice,
+                   InterfaceType,
+                   DigitalDirection)
 
 
 class SwitchesClient(object):
@@ -35,6 +38,38 @@ class SwitchesClient(object):
         self._C5 = Subject()
         self._C6 = Subject()
         self._C7 = Subject()
+        self.__inputActions = {
+            0: {
+                0: lambda pressed: self._A0.on_next(pressed),
+                1: lambda pressed: self._A1.on_next(pressed),
+                2: lambda pressed: self._A2.on_next(pressed),
+                3: lambda pressed: self._A3.on_next(pressed),
+                4: lambda pressed: self._A4.on_next(pressed),
+                5: lambda pressed: self._A5.on_next(pressed),
+                6: lambda pressed: self._A6.on_next(pressed),
+                7: lambda pressed: self._A7.on_next(pressed),
+            },
+            1: {
+                0: lambda pressed: self._B0.on_next(pressed),
+                1: lambda pressed: self._B1.on_next(pressed),
+                2: lambda pressed: self._B2.on_next(pressed),
+                3: lambda pressed: self._B3.on_next(pressed),
+                4: lambda pressed: self._B4.on_next(pressed),
+                5: lambda pressed: self._B5.on_next(pressed),
+                6: lambda pressed: self._B6.on_next(pressed),
+                7: lambda pressed: self._B7.on_next(pressed),
+            },
+            2: {
+                0: lambda pressed: self._C0.on_next(pressed),
+                1: lambda pressed: self._C1.on_next(pressed),
+                2: lambda pressed: self._C2.on_next(pressed),
+                3: lambda pressed: self._C3.on_next(pressed),
+                4: lambda pressed: self._C4.on_next(pressed),
+                5: lambda pressed: self._C5.on_next(pressed),
+                6: lambda pressed: self._C6.on_next(pressed),
+                7: lambda pressed: self._C7.on_next(pressed),
+            }
+        }
 
     def connect(self, device_id):
         self.__daq_device = None
@@ -55,7 +90,8 @@ class SwitchesClient(object):
                 print('  ', self.__devices[i].product_name,
                       ' (', self.__devices[i].unique_id, ')', sep='')
 
-            # Create the DAQ device object associated with the specified descriptor index.
+            # Create the DAQ device object
+            # associated with the specified descriptor index.
             self.__device = next(
                 f for f in self.__devices if f.unique_id == self.__device_id)
 
@@ -86,37 +122,17 @@ class SwitchesClient(object):
             self.__port_info_b = self.__dio_info.get_port_info(self.__port_b)
             self.__port_info_c = self.__dio_info.get_port_info(self.__port_c)
 
-            # If the port is bit configurable, then configure the individual bits
-            # for input; otherwise, configure the entire port for input.
-            if self.__port_info_a.port_io_type == DigitalPortIoType.BITIO:
-                # Configure all of the bits for input for the first port.
-                for i in range(self.__port_info_a.number_of_bits):
-                    self.__dio_device.d_config_bit(
-                        self.__port_a, i, DigitalDirection.INPUT)
-            elif self.__port_info_a.port_io_type == DigitalPortIoType.IO:
-                # Configure the entire port for input.
-                self.__dio_device.d_config_port(
-                    self.__port_a, DigitalDirection.INPUT)
+            # Configure the entire port for input.
+            self.__dio_device.d_config_port(
+                self.__port_a, DigitalDirection.INPUT)
 
-            if self.__port_info_b.port_io_type == DigitalPortIoType.BITIO:
-                # Configure all of the bits for input for the first port.
-                for i in range(self.__port_info_b.number_of_bits):
-                    self.__dio_device.d_config_bit(
-                        self.__port_b, i, DigitalDirection.INPUT)
-            elif self.__port_info_b.port_io_type == DigitalPortIoType.IO:
-                # Configure the entire port for input.
-                self.__dio_device.d_config_port(
-                    self.__port_b, DigitalDirection.INPUT)
+            # Configure the entire port for input.
+            self.__dio_device.d_config_port(
+                self.__port_b, DigitalDirection.INPUT)
 
-            if self.__port_info_c.port_io_type == DigitalPortIoType.BITIO:
-                # Configure all of the bits for input for the first port.
-                for i in range(self.__port_info_c.number_of_bits):
-                    self.__dio_device.d_config_bit(
-                        self.__port_c, i, DigitalDirection.INPUT)
-            elif self.__port_info_c.port_io_type == DigitalPortIoType.IO:
-                # Configure the entire port for input.
-                self.__dio_device.d_config_port(
-                    self.__port_c, DigitalDirection.INPUT)
+            # Configure the entire port for input.
+            self.__dio_device.d_config_port(
+                self.__port_c, DigitalDirection.INPUT)
 
         except Exception as e:
             print('\n', e)
@@ -128,17 +144,17 @@ class SwitchesClient(object):
             for bit_number in a:
                 active = not bool(self.__dio_device.d_bit_in(
                     self.__port_a, bit_number))
-                self.__update_observer(self.__device_id, 0, bit_number, active)
+                self.__update_observer(0, bit_number, active)
 
             for bit_number in b:
                 active = not bool(self.__dio_device.d_bit_in(
                     self.__port_b, bit_number))
-                self.__update_observer(self.__device_id, 1, bit_number, active)
+                self.__update_observer(1, bit_number, active)
 
             for bit_number in c:
                 active = not bool(self.__dio_device.d_bit_in(
                     self.__port_c, bit_number))
-                self.__update_observer(self.__device_id, 2, bit_number, active)
+                self.__update_observer(2, bit_number, active)
 
         except Exception as e:
             print('\n', e)
@@ -150,79 +166,5 @@ class SwitchesClient(object):
                 self.__daq_device.disconnect()
             self.__daq_device.release()
 
-    def __update_observer(self, device, port, bit, pressed):
-        if port == 0:
-            if bit == 0:
-                # print('+++ ' + self.__device_id + ' A0')
-                self._A0.on_next(pressed)
-            if bit == 1:
-                # print('+++ ' + self.__device_id + ' A1')
-                self._A1.on_next(pressed)
-            if bit == 2:
-                # print('+++ ' + self.__device_id + ' A2')
-                self._A2.on_next(pressed)
-            if bit == 3:
-                # print('+++ ' + self.__device_id + ' A3')
-                self._A3.on_next(pressed)
-            if bit == 4:
-                # print('+++ ' + self.__device_id + ' A4')
-                self._A4.on_next(pressed)
-            if bit == 5:
-                # print('+++ ' + self.__device_id + ' A5')
-                self._A5.on_next(pressed)
-            if bit == 6:
-                # print('+++ ' + self.__device_id + ' A6')
-                self._A6.on_next(pressed)
-            if bit == 7:
-                # print('+++ ' + self.__device_id + ' A7')
-                self._A7.on_next(pressed)
-        if port == 1:
-            if bit == 0:
-                # print('+++ ' + self.__device_id + ' B0')
-                self._B0.on_next(pressed)
-            if bit == 1:
-                # print('+++ ' + self.__device_id + ' B1')
-                self._B1.on_next(pressed)
-            if bit == 2:
-                # print('+++ ' + self.__device_id + ' B2')
-                self._B2.on_next(pressed)
-            if bit == 3:
-                # print('+++ ' + self.__device_id + ' B3')
-                self._B3.on_next(pressed)
-            if bit == 4:
-                # print('+++ ' + self.__device_id + ' B4')
-                self._B4.on_next(pressed)
-            if bit == 5:
-                # print('+++ ' + self.__device_id + ' B5')
-                self._B5.on_next(pressed)
-            if bit == 6:
-                # print('+++ ' + self.__device_id + ' B6')
-                self._B6.on_next(pressed)
-            if bit == 7:
-                # print('+++ ' + self.__device_id + ' B7')
-                self._B7.on_next(pressed)
-        if port == 2:
-            if bit == 0:
-                # print('+++ ' + self.__device_id + ' C0')
-                self._C0.on_next(pressed)
-            if bit == 1:
-                # print('+++ ' + self.__device_id + ' C1')
-                self._C1.on_next(pressed)
-            if bit == 2:
-                # print('+++ ' + self.__device_id + ' C2')
-                self._C2.on_next(pressed)
-            if bit == 3:
-                # print('+++ ' + self.__device_id + ' C3')
-                self._C3.on_next(pressed)
-            if bit == 4:
-                # print('+++ ' + self.__device_id + ' C4')
-                self._C4.on_next(pressed)
-            if bit == 5:
-                # print('+++ ' + self.__device_id + ' C5')
-                self._C5.on_next(pressed)
-            if bit == 6:
-                # print('+++ ' + self.__device_id + ' C6')
-                self._C6.on_next(pressed)
-            if bit == 7:
-                # print('+++ ' + self.__device_id + ' C7')
-                self._C7.on_next(pressed)
+    def __update_observer(self, port, bit, pressed):
+        self.__inputActions[port][bit](pressed)
