@@ -20,6 +20,39 @@ class BlindsService(object):
         self.__blindUpTimer = {}
         self.__blockTimer = None
         self.__scheduler = EventLoopScheduler()
+        self.__relayActiveActions = {
+            BlindAction.Blind1Up: self.__gpioClient.blind1UpStart(),
+            BlindAction.Blind2Up: self.__gpioClient.blind2UpStart(),
+            BlindAction.Blind3Up: self.__gpioClient.blind3UpStart(),
+            BlindAction.Blind4Up: self.__gpioClient.blind4UpStart(),
+            BlindAction.Blind5Up: self.__gpioClient.blind5UpStart(),
+            BlindAction.AllUp: self.__gpioClient.allBlindsUpStart(),
+            BlindAction.AllUp2: self.__gpioClient.allBlindsUpStart(),
+            BlindAction.Blind1Down: self.__gpioClient.blind1DownStart(),
+            BlindAction.Blind2Down: self.__gpioClient.blind2DownStart(),
+            BlindAction.Blind3Down: self.__gpioClient.blind3DownStart(),
+            BlindAction.Blind4Down: self.__gpioClient.blind4DownStart(),
+            BlindAction.Blind5Down: self.__gpioClient.blind5DownStart(),
+            BlindAction.AllDown: self.__gpioClient.allBlindsDownStart(),
+            BlindAction.AllDown2: self.__gpioClient.allBlindsDownStart()
+        }
+        self.__relayInactiveActions = {
+            BlindAction.Blind1Up: self.__gpioClient.blind1UpStop(),
+            BlindAction.Blind2Up: self.__gpioClient.blind2UpStop(),
+            BlindAction.Blind3Up: self.__gpioClient.blind3UpStop(),
+            BlindAction.Blind4Up: self.__gpioClient.blind4UpStop(),
+            BlindAction.Blind5Up: self.__gpioClient.blind5UpStop(),
+            BlindAction.AllUp: self.__gpioClient.allBlindsUpStop(),
+            BlindAction.AllUp2: self.__gpioClient.allBlindsUpStop(),
+            BlindAction.Blind1Down: self.__gpioClient.blind1DownStop(),
+            BlindAction.Blind2Down: self.__gpioClient.blind2DownStop(),
+            BlindAction.Blind3Down: self.__gpioClient.blind3DownStop(),
+            BlindAction.Blind4Down: self.__gpioClient.blind4DownStop(),
+            BlindAction.Blind5Down: self.__gpioClient.blind5DownStop(),
+            BlindAction.AllDown: self.__gpioClient.allBlindsDownStop(),
+            BlindAction.AllDown2: self.__gpioClient.allBlindsDownStop()
+        }
+
         _thread.start_new_thread(self.__configureAutomations, ())
 
     def addSwitch(self,
@@ -37,17 +70,21 @@ class BlindsService(object):
     def __configureAutomations(self):
         # Special rules
         schedule.every().friday.at("06:56").do(self.__gpioClient.block)
-        schedule.every().friday.at("07:05").do(self.__blockAutomationWhenAllAreUp)
+        (schedule.every().friday.at("07:05")
+            .do(self.__blockAutomationWhenAllAreUp))
 
         # Never close automatically
         schedule.every().day.at("18:26").do(self.__gpioClient.block)
-        schedule.every().day.at("18:34").do(self.__blockAutomationWhenAllAreUp)
+        (schedule.every().day.at("18:34")
+            .do(self.__blockAutomationWhenAllAreUp))
 
         # Do not open on the weekend.
         schedule.every().saturday.at("06:56").do(self.__gpioClient.block)
-        schedule.every().saturday.at("07:04").do(self.__blockAutomationWhenAllAreUp)
+        (schedule.every().saturday.at("07:04")
+            .do(self.__blockAutomationWhenAllAreUp))
         schedule.every().sunday.at("06:56").do(self.__gpioClient.block)
-        schedule.every().sunday.at("07:04").do(self.__blockAutomationWhenAllAreUp)
+        (schedule.every().sunday.at("07:04")
+            .do(self.__blockAutomationWhenAllAreUp))
 
         # Open completly on weekdays.
         schedule.every().monday.at("07:06").do(self.__allBlindsUp)
@@ -170,34 +207,7 @@ class BlindsService(object):
 
     def __handleRelayActive(self, blindAction: BlindAction, blind: Blind):
         # Forward the signal to the GPIO Client
-        if blindAction == BlindAction.Blind1Up:
-            self.__gpioClient.blind1UpStart()
-        if blindAction == BlindAction.Blind2Up:
-            self.__gpioClient.blind2UpStart()
-        if blindAction == BlindAction.Blind3Up:
-            self.__gpioClient.blind3UpStart()
-        if blindAction == BlindAction.Blind4Up:
-            self.__gpioClient.blind4UpStart()
-        if blindAction == BlindAction.Blind5Up:
-            self.__gpioClient.blind5UpStart()
-
-        if blindAction == BlindAction.Blind1Down:
-            self.__gpioClient.blind1DownStart()
-        if blindAction == BlindAction.Blind2Down:
-            self.__gpioClient.blind2DownStart()
-        if blindAction == BlindAction.Blind3Down:
-            self.__gpioClient.blind3DownStart()
-        if blindAction == BlindAction.Blind4Down:
-            self.__gpioClient.blind4DownStart()
-        if blindAction == BlindAction.Blind5Down:
-            self.__gpioClient.blind5DownStart()
-
-        if (blindAction == BlindAction.AllUp or
-                blindAction == BlindAction.AllUp2):
-            self.__gpioClient.allBlindsUpStart()
-        if (blindAction == BlindAction.AllDown or
-                blindAction == BlindAction.AllDown2):
-            self.__gpioClient.allBlindsDownStart()
+        self.__relayActiveActions[blindAction]()
 
         # Store the timestamp when the up signal was initiated
         # to detect if the blind is all the way up
@@ -212,34 +222,7 @@ class BlindsService(object):
 
     def __handleRelayInactive(self, blindAction: BlindAction, blind: Blind):
         # Forward the signal to the GPIO Client
-        if blindAction == BlindAction.Blind1Up:
-            self.__gpioClient.blind1UpStop()
-        if blindAction == BlindAction.Blind2Up:
-            self.__gpioClient.blind2UpStop()
-        if blindAction == BlindAction.Blind3Up:
-            self.__gpioClient.blind3UpStop()
-        if blindAction == BlindAction.Blind4Up:
-            self.__gpioClient.blind4UpStop()
-        if blindAction == BlindAction.Blind5Up:
-            self.__gpioClient.blind5UpStop()
-
-        if blindAction == BlindAction.Blind1Down:
-            self.__gpioClient.blind1DownStop()
-        if blindAction == BlindAction.Blind2Down:
-            self.__gpioClient.blind2DownStop()
-        if blindAction == BlindAction.Blind3Down:
-            self.__gpioClient.blind3DownStop()
-        if blindAction == BlindAction.Blind4Down:
-            self.__gpioClient.blind4DownStop()
-        if blindAction == BlindAction.Blind5Down:
-            self.__gpioClient.blind5DownStop()
-
-        if (blindAction == BlindAction.AllUp or
-                blindAction == BlindAction.AllUp2):
-            self.__gpioClient.allBlindsUpStop()
-        if (blindAction == BlindAction.AllDown or
-                blindAction == BlindAction.AllDown2):
-            self.__gpioClient.allBlindsDownStop()
+        self.__relayInactiveActions[blindAction]()
 
         # If the up signal was sent for more than 2 seconds the blind is up
         if blindAction in (BlindAction.Blind1Up,
@@ -271,30 +254,14 @@ class BlindsService(object):
                     self.__blindUp[group] = False
 
     def __blockAutomationWhenAllAreUp(self):
-        # Ensure all 5 blinds are registered
-        if Blind.Blind1 not in self.__blindUp:
-            return
-        if Blind.Blind2 not in self.__blindUp:
-            return
-        if Blind.Blind3 not in self.__blindUp:
-            return
-        if Blind.Blind4 not in self.__blindUp:
-            return
-        if Blind.Blind5 not in self.__blindUp:
-            return
-
         # Ensure all 5 blinds are up
-        if not self.__blindUp[Blind.Blind1]:
-            return
-        if not self.__blindUp[Blind.Blind2]:
-            return
-        if not self.__blindUp[Blind.Blind3]:
-            return
-        if not self.__blindUp[Blind.Blind4]:
-            return
-        if not self.__blindUp[Blind.Blind5]:
+        if all(blind in self.__blindUp for blind in
+               (Blind.Blind1,
+                   Blind.Blind2,
+                   Blind.Blind3,
+                   Blind.Blind4,
+                   Blind.Blind5)):
             return
 
-        # All blinds are up
         # Block the automation
         self.__gpioClient.block()
