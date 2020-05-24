@@ -21,36 +21,36 @@ class BlindsService(object):
         self.__blockTimer = None
         self.__scheduler = EventLoopScheduler()
         self.__relayActiveActions = {
-            BlindAction.Blind1Up: self.__gpioClient.blind1UpStart(),
-            BlindAction.Blind2Up: self.__gpioClient.blind2UpStart(),
-            BlindAction.Blind3Up: self.__gpioClient.blind3UpStart(),
-            BlindAction.Blind4Up: self.__gpioClient.blind4UpStart(),
-            BlindAction.Blind5Up: self.__gpioClient.blind5UpStart(),
-            BlindAction.AllUp: self.__gpioClient.allBlindsUpStart(),
-            BlindAction.AllUp2: self.__gpioClient.allBlindsUpStart(),
-            BlindAction.Blind1Down: self.__gpioClient.blind1DownStart(),
-            BlindAction.Blind2Down: self.__gpioClient.blind2DownStart(),
-            BlindAction.Blind3Down: self.__gpioClient.blind3DownStart(),
-            BlindAction.Blind4Down: self.__gpioClient.blind4DownStart(),
-            BlindAction.Blind5Down: self.__gpioClient.blind5DownStart(),
-            BlindAction.AllDown: self.__gpioClient.allBlindsDownStart(),
-            BlindAction.AllDown2: self.__gpioClient.allBlindsDownStart()
+            BlindAction.Blind1Up: self.__gpioClient.blind1UpStart,
+            BlindAction.Blind2Up: self.__gpioClient.blind2UpStart,
+            BlindAction.Blind3Up: self.__gpioClient.blind3UpStart,
+            BlindAction.Blind4Up: self.__gpioClient.blind4UpStart,
+            BlindAction.Blind5Up: self.__gpioClient.blind5UpStart,
+            BlindAction.AllUp: self.__gpioClient.allBlindsUpStart,
+            BlindAction.AllUp2: self.__gpioClient.allBlindsUpStart,
+            BlindAction.Blind1Down: self.__gpioClient.blind1DownStart,
+            BlindAction.Blind2Down: self.__gpioClient.blind2DownStart,
+            BlindAction.Blind3Down: self.__gpioClient.blind3DownStart,
+            BlindAction.Blind4Down: self.__gpioClient.blind4DownStart,
+            BlindAction.Blind5Down: self.__gpioClient.blind5DownStart,
+            BlindAction.AllDown: self.__gpioClient.allBlindsDownStart,
+            BlindAction.AllDown2: self.__gpioClient.allBlindsDownStart
         }
         self.__relayInactiveActions = {
-            BlindAction.Blind1Up: self.__gpioClient.blind1UpStop(),
-            BlindAction.Blind2Up: self.__gpioClient.blind2UpStop(),
-            BlindAction.Blind3Up: self.__gpioClient.blind3UpStop(),
-            BlindAction.Blind4Up: self.__gpioClient.blind4UpStop(),
-            BlindAction.Blind5Up: self.__gpioClient.blind5UpStop(),
-            BlindAction.AllUp: self.__gpioClient.allBlindsUpStop(),
-            BlindAction.AllUp2: self.__gpioClient.allBlindsUpStop(),
-            BlindAction.Blind1Down: self.__gpioClient.blind1DownStop(),
-            BlindAction.Blind2Down: self.__gpioClient.blind2DownStop(),
-            BlindAction.Blind3Down: self.__gpioClient.blind3DownStop(),
-            BlindAction.Blind4Down: self.__gpioClient.blind4DownStop(),
-            BlindAction.Blind5Down: self.__gpioClient.blind5DownStop(),
-            BlindAction.AllDown: self.__gpioClient.allBlindsDownStop(),
-            BlindAction.AllDown2: self.__gpioClient.allBlindsDownStop()
+            BlindAction.Blind1Up: self.__gpioClient.blind1UpStop,
+            BlindAction.Blind2Up: self.__gpioClient.blind2UpStop,
+            BlindAction.Blind3Up: self.__gpioClient.blind3UpStop,
+            BlindAction.Blind4Up: self.__gpioClient.blind4UpStop,
+            BlindAction.Blind5Up: self.__gpioClient.blind5UpStop,
+            BlindAction.AllUp: self.__gpioClient.allBlindsUpStop,
+            BlindAction.AllUp2: self.__gpioClient.allBlindsUpStop,
+            BlindAction.Blind1Down: self.__gpioClient.blind1DownStop,
+            BlindAction.Blind2Down: self.__gpioClient.blind2DownStop,
+            BlindAction.Blind3Down: self.__gpioClient.blind3DownStop,
+            BlindAction.Blind4Down: self.__gpioClient.blind4DownStop,
+            BlindAction.Blind5Down: self.__gpioClient.blind5DownStop,
+            BlindAction.AllDown: self.__gpioClient.allBlindsDownStop,
+            BlindAction.AllDown2: self.__gpioClient.allBlindsDownStop
         }
 
         _thread.start_new_thread(self.__configureAutomations, ())
@@ -254,14 +254,30 @@ class BlindsService(object):
                     self.__blindUp[group] = False
 
     def __blockAutomationWhenAllAreUp(self):
-        # Ensure all 5 blinds are up
-        if all(blind in self.__blindUp for blind in
-               (Blind.Blind1,
-                Blind.Blind2,
-                Blind.Blind3,
-                Blind.Blind4,
-                Blind.Blind5)):
+        # Ensure all 5 blinds are registered
+        if Blind.Blind1 not in self.__blindUp:
+            return
+        if Blind.Blind2 not in self.__blindUp:
+            return
+        if Blind.Blind3 not in self.__blindUp:
+            return
+        if Blind.Blind4 not in self.__blindUp:
+            return
+        if Blind.Blind5 not in self.__blindUp:
             return
 
+        # Ensure all 5 blinds are up
+        if not self.__blindUp[Blind.Blind1]:
+            return
+        if not self.__blindUp[Blind.Blind2]:
+            return
+        if not self.__blindUp[Blind.Blind3]:
+            return
+        if not self.__blindUp[Blind.Blind4]:
+            return
+        if not self.__blindUp[Blind.Blind5]:
+            return
+
+        # All blinds are up
         # Block the automation
         self.__gpioClient.block()
