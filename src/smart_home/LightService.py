@@ -6,6 +6,7 @@ from collections import namedtuple
 import threading
 import time
 from rx import Observable
+from rx import operators as ops
 from rx.scheduler import NewThreadScheduler
 
 SwitchState = namedtuple('SwitchState', 'pressed, datetime')
@@ -17,6 +18,7 @@ class LightService(object):
     def __init__(self):
         self.__mqttClient = MqttClient.MqttClient()
         self.__lightOn = {}
+        self.__lightTemp = {}
         self.__buttonStateHistory = {}
         self.__dimmState = {}
         self.__tempState = {}
@@ -30,6 +32,10 @@ class LightService(object):
         self.__lightOn[roomGroup] = False
         observable.subscribe(
             lambda active: self.__pressedHandler(roomGroup) if active else self.__releasedHandler(roomGroup))
+
+    def addTempSwitch(self, observable: Observable, roomGroup: RoomGroup):
+        observable.pipe(ops.debounce(0.5)).subscribe(
+            lambda active: self.__changeTemperature(roomGroup))
 
     def __pressedHandler(self, roomGroup: RoomGroup):
         # Key does not yet exist
@@ -154,6 +160,18 @@ class LightService(object):
                 roomGroup),
             MqttMessageBuilder.getTurnOnPayload())
         self.__lightOn[roomGroup] = True
+
+    def __changeTemperature(self, roomGroup: RoomGroup):
+        newLightTemp = 800
+        if self.__lightTemp[roomGroup] == 800:
+            newLightTemp = 100
+
+        self.__mqttClient.publish(
+            self.__getGroupFriendlyName(
+                roomGroup),
+            MqttMessageBuilder.getChangeTempPayload(newLightTemp))
+        self.__lightOn[roomGroup] = True
+        self.__lightTemp[roomGroup] = newLightTemp
 
     def __getGroupFriendlyName(self, roomGroup: RoomGroup) -> str:
         if roomGroup == RoomGroup.RoomGroup.BATHROOM:

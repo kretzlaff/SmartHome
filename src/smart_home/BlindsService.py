@@ -1,4 +1,6 @@
 import datetime
+import _thread
+import time
 
 from rx import Observable
 from rx import operators as ops
@@ -6,6 +8,8 @@ from rx.scheduler import EventLoopScheduler
 from smart_home.BlindAction import BlindAction, Blind
 from relay import GpioClient
 from threading import Timer
+
+import schedule
 
 
 class BlindsService(object):
@@ -16,6 +20,7 @@ class BlindsService(object):
         self.__blindUpTimer = {}
         self.__blockTimer = None
         self.__scheduler = EventLoopScheduler()
+        _thread.start_new_thread(self.__configureAutomations, ())
 
     def addSwitch(self,
                   observable: Observable,
@@ -28,6 +33,95 @@ class BlindsService(object):
         # Add a handler to the switch state
         observable.pipe(ops.observe_on(self.__scheduler)).subscribe(
             lambda active: self.__pressedHandler(blindAction, blind, active))
+
+    def __configureAutomations(self):
+        # Special rules
+        schedule.every().friday.at("06:56").do(self.__gpioClient.block)
+        schedule.every().friday.at("07:05").do(self.__blockAutomationWhenAllAreUp)
+
+        # Never close automatically
+        schedule.every().day.at("18:26").do(self.__gpioClient.block)
+        schedule.every().day.at("18:34").do(self.__blockAutomationWhenAllAreUp)
+
+        # Do not open on the weekend.
+        schedule.every().saturday.at("06:56").do(self.__gpioClient.block)
+        schedule.every().saturday.at("07:04").do(self.__blockAutomationWhenAllAreUp)
+        schedule.every().sunday.at("06:56").do(self.__gpioClient.block)
+        schedule.every().sunday.at("07:04").do(self.__blockAutomationWhenAllAreUp)
+
+        # Open completly on weekdays.
+        schedule.every().monday.at("07:06").do(self.__allBlindsUp)
+        schedule.every().tuesday.at("07:06").do(self.__allBlindsUp)
+        schedule.every().wednesday.at("07:06").do(self.__allBlindsUp)
+        schedule.every().thursday.at("07:06").do(self.__allBlindsUp)
+        # schedule.every().friday.at("07:06").do(self.__allBlindsUp)
+
+        # Open slightly on weekends.
+        schedule.every().saturday.at("09:00").do(self.__openSlightly)
+        schedule.every().sunday.at("09:00").do(self.__openSlightly)
+
+        # Close at 22:00 on weekdays
+        schedule.every().sunday.at("22:00").do(self.__allBlindsDown)
+        schedule.every().monday.at("22:00").do(self.__allBlindsDown)
+        schedule.every().tuesday.at("22:00").do(self.__allBlindsDown)
+        schedule.every().wednesday.at("22:00").do(self.__allBlindsDown)
+        schedule.every().thursday.at("22:00").do(self.__allBlindsDown)
+
+        # Close at 00:00 on weekends
+        schedule.every().friday.at("00:00").do(self.__allBlindsDown)
+        schedule.every().saturday.at("00:00").do(self.__allBlindsDown)
+
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+
+    def __openSlightly(self):
+        self.__unblockBlinds()
+        self.__gpioClient.allBlindsUpStart()
+
+        # Virtually press the button for 0.3 seconds
+        t = Timer(0.4, self.__gpioClient.allBlindsUpStop)
+        t.start()
+
+        self.__blockBlinds()
+
+    def __allBlindsUp(self):
+        self.__unblockBlinds()
+
+        # Activate relay
+        self.__gpioClient.allBlindsUpStart()
+        time.sleep(0.5)
+        self.__gpioClient.allBlindsUpStop()
+        time.sleep(0.5)
+        self.__gpioClient.allBlindsUpStart()
+
+        # Virtually press the button for 5 seconds
+        t = Timer(5.0, self.__gpioClient.allBlindsUpStop)
+        t.start()
+
+        # Store all blinds are up
+        for group in Blind:
+            self.__blindUp[group] = True
+
+        self.__blockBlinds()
+
+    def __allBlindsDown(self):
+        self.__unblockBlinds()
+
+        # Store all blinds are down
+        for group in Blind:
+            self.__blindUp[group] = False
+
+        # Activate relay
+        self.__gpioClient.allBlindsDownStart()
+        time.sleep(0.5)
+        self.__gpioClient.allBlindsDownStop()
+        time.sleep(0.5)
+        self.__gpioClient.allBlindsDownStart()
+
+        # Virtually press the button for 5 seconds
+        t = Timer(5.0, self.__gpioClient.allBlindsDownStop)
+        t.start()
 
     def __pressedHandler(
             self,
@@ -43,8 +137,7 @@ class BlindsService(object):
 
         # Button is pressed
         if active:
-            # Unblock blinds
-            self.__gpioClient.unblock()
+            self.__unblockBlinds()
 
             # Activate relay
             self.__handleRelayActive(blindAction, blind)
@@ -54,6 +147,9 @@ class BlindsService(object):
             # Deactivate relay
             self.__handleRelayInactive(blindAction, blind)
 
+        self.__blockBlinds()
+
+    def __blockBlinds(self):
         # Block Wind/Time automation when all blinds are up
         # Dispose existing timer
         if self.__blockTimer is not None:
@@ -62,6 +158,15 @@ class BlindsService(object):
         # Block the automation after 70 seconds
         self.__blockTimer = Timer(70.0, self.__blockAutomationWhenAllAreUp)
         self.__blockTimer.start()
+
+    def __unblockBlinds(self):
+        # Dispose existing timer
+        if self.__blockTimer is not None:
+            self.__blockTimer.cancel()
+
+        # Unblock blinds
+        self.__gpioClient.unblock()
+        time.sleep(0.1)
 
     def __handleRelayActive(self, blindAction: BlindAction, blind: Blind):
         # Forward the signal to the GPIO Client

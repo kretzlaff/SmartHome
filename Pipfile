@@ -15,6 +15,7 @@ uldaq = "*"
 rx = "*"
 "RPi.GPIO" = "*"
 soco = "*"
+schedule = "*"
 
 [requires]
 python_version = "3.8"

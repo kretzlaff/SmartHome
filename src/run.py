@@ -1,7 +1,7 @@
 from switches import SwitchMapper
 from smart_home import LightService, RoomGroup, BlindsService, DoorbellService
 from smart_home.BlindAction import BlindAction, Blind
-import asyncio
+# import asyncio
 
 # Init Services
 mapper = SwitchMapper.SwitchMapper()
@@ -23,9 +23,9 @@ lightService.addSwitch(mapper.bedroom_5, RoomGroup.RoomGroup.BEDROOM)
 
 # Map Blinds and switches
 blindsService.addSwitch(mapper.living_room_3,
-                        BlindAction.Blind1Down, Blind.Blind1)
-blindsService.addSwitch(mapper.living_room_4,
                         BlindAction.Blind1Up, Blind.Blind1)
+blindsService.addSwitch(mapper.living_room_4,
+                        BlindAction.Blind1Down, Blind.Blind1)
 
 blindsService.addSwitch(mapper.kitchen_7, BlindAction.Blind2Up, Blind.Blind2)
 blindsService.addSwitch(mapper.kitchen_8, BlindAction.Blind2Down, Blind.Blind2)
