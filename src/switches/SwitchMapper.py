@@ -74,5 +74,5 @@ class SwitchMapper(object):
         self.__thread1.connect(self.__device1_id)
         self.__thread2.connect(self.__device2_id)
 
-        self.__thread1.run()
-        self.__thread2.run()
+        self.__thread1.start()
+        self.__thread2.start()

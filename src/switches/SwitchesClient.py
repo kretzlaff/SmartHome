@@ -38,6 +38,38 @@ class SwitchesClient(object):
         self._C5 = Subject()
         self._C6 = Subject()
         self._C7 = Subject()
+        self.__lastInputAction = {
+            0: {
+                0: False,
+                1: False,
+                2: False,
+                3: False,
+                4: False,
+                5: False,
+                6: False,
+                7: False,
+            },
+            1: {
+                0: False,
+                1: False,
+                2: False,
+                3: False,
+                4: False,
+                5: False,
+                6: False,
+                7: False,
+            },
+            2: {
+                0: False,
+                1: False,
+                2: False,
+                3: False,
+                4: False,
+                5: False,
+                6: False,
+                7: False,
+            }
+        }
         self.__inputActions = {
             0: {
                 0: lambda pressed: self._A0.on_next(pressed),
@@ -167,4 +199,6 @@ class SwitchesClient(object):
             self.__daq_device.release()
 
     def __update_observer(self, port, bit, pressed):
-        self.__inputActions[port][bit](pressed)
+        if (self.__lastInputAction[port][bit] != pressed):
+            self.__lastInputAction[port][bit] = pressed
+            self.__inputActions[port][bit](pressed)

@@ -1,5 +1,4 @@
 import threading
-
 from switches.SwitchesClient import SwitchesClient
 
 
@@ -18,7 +17,7 @@ class SwitchThread(threading.Thread):
         self.__c = c
 
     def disconnect(self):
-        self.switchClient._disconnect(self.device_id)
+        self.switchClient._disconnect()
 
     def run(self):
         try:
@@ -27,6 +26,5 @@ class SwitchThread(threading.Thread):
                     self.__a,
                     self.__b,
                     self.__c)
-
         finally:
             self.disconnect()
